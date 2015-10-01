@@ -40,11 +40,11 @@ private:
 
    enum OutputDirection
    {
-      SELF = 0,
-      LEFT,
-      RIGHT,
-      DOWN,
-      UP
+      SELF  = 0,
+      UP    = 1,
+      RIGHT = 2,
+      DOWN  = 3,
+      LEFT  = 4
    };
 
    // Fields
@@ -78,7 +78,10 @@ private:
 
    // Utilities
    static void computePosition(tile_id_t tile, SInt32 &x, SInt32 &y);
+   static void computePositionFromLabel(tile_id_t tile, SInt32 &x, SInt32 &y);
    static tile_id_t computeTileID(SInt32 x, SInt32 y);
+   static tile_id_t computeTileLabel(SInt32 x, SInt32 y);
+   static SInt32 dirTwoPos(SInt32 nx, SInt32 ny, SInt32 cx, SInt32 cy);
 
    void outputPowerSummary(ostream& out, const Time& target_completion_time);
    void outputEventCountSummary(ostream& out);

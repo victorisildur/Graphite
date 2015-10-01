@@ -168,6 +168,7 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
 
          list<NextDest> next_dest_list;
 
+	 /* xy,tree like broadcast
          if (cy >= sy)
             next_dest_list.push_back(NextDest(computeTileID(cx,cy+1), UP, EMESH));
          if (cy <= sy)
@@ -179,6 +180,19 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
             if (cx <= sx)
                next_dest_list.push_back(NextDest(computeTileID(cx-1,cy), LEFT, EMESH));
          }
+	 */
+	 /* path-based broadcast*/
+	 tile_id_t s_label = computeTileLabel(sx,sy);
+	 tile_id_t c_label = computeTileLabel(cx,cy);
+	 if(c_label > s_label) {
+	   SInt32 nx, ny;
+	   computePositionFromLabel(c_label+1, nx, ny);
+	   next_dest_list.push_back(NextDest(computeTileID(nx,ny), dirTwoPos(nx,ny,cx,cy), EMESH));
+	 } else {
+	   SInt32 nx, ny;
+	   computePositionFromLabel(c_label-1, nx, ny);
+	   next_dest_list.push_back(NextDest(computeTileID(nx,ny), dirTwoPos(nx,ny,cx,cy), EMESH));
+	 }
          next_dest_list.push_back(NextDest(_tile_id, SELF, RECEIVE_TILE));
 
          UInt64 zero_load_delay = 0;
@@ -269,6 +283,29 @@ NetworkModelEMeshHopByHop::computePosition(tile_id_t tile_id, SInt32 &x, SInt32 
    x = tile_id % _mesh_width;
    y = tile_id / _mesh_width;
 }
+/*
+  func: compute the (x,y) from tile label
+  params:
+    {tile_id_t}:  tile label
+    x{SInt32}: x
+    y{SInt32}: y
+  return:
+    change x,y in place
+*/
+void
+  NetworkModelEMeshHopByHop::computePositionFromLabel(tile_id_t tile_label, SInt32 &x, SInt32 &y)
+{
+  if( (tile_label / _mesh_width) % 2 == 0) {
+    /* y is even */
+    y = tile_label / _mesh_width;
+    x = tile_label - y * _mesh_width;
+  }
+  else {
+    /* y is odd */
+    y = tile_label / _mesh_width;
+    x = (y + 1) * _mesh_width - tile_label - 1;
+  }
+}
 
 tile_id_t
 NetworkModelEMeshHopByHop::computeTileID(SInt32 x, SInt32 y)
@@ -277,6 +314,39 @@ NetworkModelEMeshHopByHop::computeTileID(SInt32 x, SInt32 y)
       return INVALID_TILE_ID;
    else
       return (y * _mesh_width + x);
+}
+
+/*
+  func: compute tile label, in the snake shape order
+  params:
+    x{SInt32}: x
+    y{SInt32}: y
+  return:
+    {tile_id_t}:  tile label
+*/
+SInt32
+NetworkModelEMeshHopByHop::computeTileLabel(SInt32 x, SInt32 y)
+{
+  if ( (x < 0) || (y < 0) || (x >= _mesh_width) || (y >= _mesh_height) )
+    return INVALID_TILE_ID;
+
+  if(y%2 == 0)
+    return (y * _mesh_width + x);
+  else
+    return (y * (_mesh_width+1) - x -1 );
+}
+
+/* two positions next and current, get their relative direction */
+SInt32
+  NetworkModelEMeshHopByHop::dirTwoPos(SInt32 nx, SInt32 ny, SInt32 cx, SInt32 cy)
+{
+  if(ny > cy)
+    return UP;
+  if(ny < cy)
+    return DOWN;
+  if(nx > cy)
+    return RIGHT;
+  return LEFT;
 }
 
 SInt32
