@@ -168,7 +168,8 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
 
          list<NextDest> next_dest_list;
 
-	 /* xy,tree like broadcast
+	 /* xy,tree like broadcast */
+	 fprintf(stdout, "LOG: sx: %d, sy: %d;    cx: %d, cy: %d\n", sx, sy, cx, cy);
          if (cy >= sy)
             next_dest_list.push_back(NextDest(computeTileID(cx,cy+1), UP, EMESH));
          if (cy <= sy)
@@ -180,19 +181,29 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
             if (cx <= sx)
                next_dest_list.push_back(NextDest(computeTileID(cx-1,cy), LEFT, EMESH));
          }
-	 */
+
 	 /* path-based broadcast*/
+         /*
 	 tile_id_t s_label = computeTileLabel(sx,sy);
 	 tile_id_t c_label = computeTileLabel(cx,cy);
-	 if(c_label > s_label) {
+	 fprintf(stdout, "LOG: s_label: %d, c_label: %d\n", s_label, c_label);
+	 fprintf(stdout, "LOG: cx: %d, cy: %d\n", cx, cy);
+	 if (c_label >= s_label) {
 	   SInt32 nx, ny;
 	   computePositionFromLabel(c_label+1, nx, ny);
+	   fprintf(stdout, "LOG: nx: %d, ny: %d\n", nx, ny);
+	   fprintf(stdout, "Next tile_id: %d, Next tile_label: %d\n", computeTileID(nx,ny), computeTileLabel(nx,ny));
 	   next_dest_list.push_back(NextDest(computeTileID(nx,ny), dirTwoPos(nx,ny,cx,cy), EMESH));
-	 } else {
+	 } 
+         if (c_label <= s_label) {
 	   SInt32 nx, ny;
 	   computePositionFromLabel(c_label-1, nx, ny);
+	   fprintf(stdout, "LOG: nx: %d, ny: %d\n", nx, ny);
+	   fprintf(stdout, "Next tile_id: %d, Next tile_label: %d\n", computeTileID(nx,ny), computeTileLabel(nx,ny));
+	   fprintf(stdout, "Next Direction: %d\n",  dirTwoPos(nx,ny,cx,cy));
 	   next_dest_list.push_back(NextDest(computeTileID(nx,ny), dirTwoPos(nx,ny,cx,cy), EMESH));
 	 }
+         */
          next_dest_list.push_back(NextDest(_tile_id, SELF, RECEIVE_TILE));
 
          UInt64 zero_load_delay = 0;
@@ -217,6 +228,7 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
             }
             else
             {
+               fprintf(stdout, "Oops: invalid next dest tile\n");
                it = next_dest_list.erase(it);
             }
          }
@@ -333,7 +345,7 @@ NetworkModelEMeshHopByHop::computeTileLabel(SInt32 x, SInt32 y)
   if(y%2 == 0)
     return (y * _mesh_width + x);
   else
-    return (y * (_mesh_width+1) - x -1 );
+    return ( (y+1) * _mesh_width - x -1 );
 }
 
 /* two positions next and current, get their relative direction */
