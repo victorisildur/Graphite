@@ -152,6 +152,7 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
    {
       UInt64 zero_load_delay = 0;
       UInt64 contention_delay = 0;
+
       _injection_router->processPacket(pkt, 0, zero_load_delay, contention_delay);
       
       Hop hop(pkt, _tile_id, EMESH, Latency(0,_frequency), Latency(contention_delay,_frequency));
@@ -167,8 +168,15 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
          computePosition(_tile_id, cx, cy);
 
          list<NextDest> next_dest_list;
+         
+         /* detect load, and judge the broadcast method here */
+         /* only calculate the contention at the sending node */
+         if ( pkt.sender == _tile_id ) {
+           
+         }
 
 	 /* xy,tree like broadcast */
+
 	 fprintf(stdout, "LOG: sx: %d, sy: %d;    cx: %d, cy: %d\n", sx, sy, cx, cy);
          if (cy >= sy)
             next_dest_list.push_back(NextDest(computeTileID(cx,cy+1), UP, EMESH));
@@ -181,6 +189,7 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
             if (cx <= sx)
                next_dest_list.push_back(NextDest(computeTileID(cx-1,cy), LEFT, EMESH));
          }
+
 
 	 /* path-based broadcast*/
          /*
