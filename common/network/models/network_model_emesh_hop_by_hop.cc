@@ -176,7 +176,7 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
          }
 
 	 /* xy,tree like broadcast */
-
+         /*
 	 fprintf(stdout, "LOG: sx: %d, sy: %d;    cx: %d, cy: %d\n", sx, sy, cx, cy);
          if (cy >= sy)
             next_dest_list.push_back(NextDest(computeTileID(cx,cy+1), UP, EMESH));
@@ -189,10 +189,10 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
             if (cx <= sx)
                next_dest_list.push_back(NextDest(computeTileID(cx-1,cy), LEFT, EMESH));
          }
-
+         */
 
 	 /* path-based broadcast*/
-         /*
+
 	 tile_id_t s_label = computeTileLabel(sx,sy);
 	 tile_id_t c_label = computeTileLabel(cx,cy);
 	 fprintf(stdout, "LOG: s_label: %d, c_label: %d\n", s_label, c_label);
@@ -212,7 +212,7 @@ NetworkModelEMeshHopByHop::routePacket(const NetPacket &pkt, queue<Hop> &next_ho
 	   fprintf(stdout, "Next Direction: %d\n",  dirTwoPos(nx,ny,cx,cy));
 	   next_dest_list.push_back(NextDest(computeTileID(nx,ny), dirTwoPos(nx,ny,cx,cy), EMESH));
 	 }
-         */
+
          next_dest_list.push_back(NextDest(_tile_id, SELF, RECEIVE_TILE));
 
          UInt64 zero_load_delay = 0;
