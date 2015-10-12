@@ -64,7 +64,7 @@ private:
    vector<ElectricalLinkModel*> _mesh_link_list;
 
    // Routing Function
-   void routePacket(const NetPacket &pkt, queue<Hop> &next_hops);
+   void routePacket(NetPacket &pkt, queue<Hop> &next_hops);
   
    // DVFS 
    void setDVFS(double frequency, double voltage, const Time& curr_time);
